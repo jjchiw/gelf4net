@@ -59,6 +59,7 @@ namespace Esilog.Gelf4net.Appender
 		public string Host { get; set; }
 		public bool IncludeLocationInformation { get; set; }
 		public bool SendAsGelfOrAmqp { get; set; }
+        public bool IncludeLoggerNameAsAdditionalField { get; set; }
 
 		private int maxChunkSize;
 
@@ -92,6 +93,7 @@ namespace Esilog.Gelf4net.Appender
 			IncludeLocationInformation = false;
 			MaxChunkSize = 1024;
 			SendAsGelfOrAmqp = true;
+		    IncludeLoggerNameAsAdditionalField = false;
 
 
 			GrayLogServerAmqpPort = 5672;
@@ -278,6 +280,11 @@ namespace Esilog.Gelf4net.Appender
 					}
 				}
 			}
+
+            if(IncludeLoggerNameAsAdditionalField)
+            {
+                AddAdditionalFields("_logger_name", loggingEvent.LoggerName, jsonObject);
+            }
 
 			return jsonObject.ToString();
 		}

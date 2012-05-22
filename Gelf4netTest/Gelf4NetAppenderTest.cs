@@ -71,6 +71,32 @@ namespace Gelf4netTest
 
 		}
 
+        [Test]
+        public void AppendTestChunkMessageWithLoggerNameIncluded()
+        {
+            var gelfAppender = new Gelf4NetAppender();
+            //def logEvent = new LoggingEvent(this.GetType().Name, new Category('catName'), System.currentTimeMillis(), Priority.WARN, "Some Short Message", new Exception('Exception Message'))
+            var data = new LoggingEventData
+            {
+                Domain = this.GetType().Name,
+                Level = Level.Debug,
+                LoggerName = "Big Tester",
+                Message = LoremIpsum.Text,
+                TimeStamp = DateTime.Now,
+                UserName = "ElTesto"
+            };
+
+            var logEvent = new LoggingEvent(data);
+            gelfAppender.GrayLogServerHost = graylogServerHost;
+            gelfAppender.MaxChunkSize = 50;
+            gelfAppender.AdditionalFields = "nombre:pedro,apellido:jimenez";
+            gelfAppender.IncludeLoggerNameAsAdditionalField = true;
+            logEvent.Properties["customProperty"] = "My Custom Property Woho";
+
+            gelfAppender.TestAppend(logEvent);
+
+        }
+
 	   [Test()]
 		public void TestMessageId()
 		{
