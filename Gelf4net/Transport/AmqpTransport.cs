@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 
 namespace Esilog.Gelf4net.Transport
 {
-    class AmqpTransport : Transport
+    class AmqpTransport : GelfTransport
     {
         public string VirtualHost { get; set; }
         public string User { get; set; }

@@ -24,7 +24,7 @@ namespace SandboxWindow
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            log.Debug("Starting the randomizer sentece");
+            log.Debug("Starting the randomizer sentence");
 			Size = new Size(800, 600);
             RandomizeSentence();
         }

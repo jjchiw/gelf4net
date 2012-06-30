@@ -8,8 +8,6 @@
 
 ## Usage
 
-*AMPQ is untested*
-
 **Properties**
 
 - <strike>~~Dictionary<string, string> AdditionalFields~~</strike>

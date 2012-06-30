@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -40,8 +40,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Gelf4NetAppenderTest.cs" />
+    <Compile Include="Appender\Gelf4NetAppenderTests.cs" />
+    <Compile Include="Transport\UdpTransportTests.cs" />
     <Compile Include="LoremIpsum.Designer.cs" />
+    <Compile Include="TestGelf4NetAppenderWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -52,8 +54,5 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LoremIpsum.resx" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace Esilog.Gelf4net.Transport
 {
-    class UdpTransport : Transport
+    public class UdpTransport : GelfTransport
     {
         public int MaxChunkSize { get; set; }
 		
@@ -46,30 +46,21 @@ namespace Esilog.Gelf4net.Transport
             }
         }
 
-        private byte[] CreateChunkedMessagePart(string messageId, int index, int chunkCount)
+        public byte[] CreateChunkedMessagePart(string messageId, int index, int chunkCount)
         {
             var result = new List<byte>();
-			//Chunked GELF ID: 0x1e 0x0f (identifying this message as a chunked GELF message)
+            var gelfHeader = new byte[2] { Convert.ToByte(30), Convert.ToByte(15) };
+            result.AddRange(gelfHeader);
             result.Add(Convert.ToByte(30));
             result.Add(Convert.ToByte(15));
-			
-			//Message ID: 8 bytes 
             result.AddRange(Encoding.Default.GetBytes(messageId).ToArray<byte>());
-			
-			//Sequence Number: 1 byte (The sequence number of this chunk)
-            //var indexShifted = (int)((uint)index >> 8);
-			//result.Add(Convert.ToByte(indexShifted));
             result.Add(Convert.ToByte(index));
-			
-			//Total Number: 1 byte (How many chunks does this message consist of in total)
-            //var chunkCountShifted = (int)((uint)chunkCount >> 8);
-			//result.Add(Convert.ToByte(chunkCountShifted));
-            result.Add(Convert.ToByte(chunkCount));
+			result.Add(Convert.ToByte(chunkCount));
 
             return result.ToArray<byte>();
         }
 
-        private string GenerateMessageId(string serverHostName)
+        public string GenerateMessageId(string serverHostName)
         {
             var md5String = String.Join("", MD5.Create().ComputeHash(Encoding.Default.GetBytes(serverHostName)).Select(it => it.ToString("x2")).ToArray<string>());
             var random = new Random((int)DateTime.Now.Ticks);
