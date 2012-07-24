@@ -94,7 +94,10 @@ namespace Esilog.Gelf4net.Appender
 
 		protected override void Append(log4net.Core.LoggingEvent loggingEvent)
 		{
+            string message = (Layout != null) ? base.RenderLoggingEvent(loggingEvent) : loggingEvent.MessageObject.ToString();
+
 			String gelfJsonString = new GelfJsonBuilder().BuildFromLoggingEvent(
+                message,
                 loggingEvent, GetLoggingHostName(), Facility, IncludeLocationInformation, innerAdditionalFields);
 			if (UseUdpTransport)
 				SendGelfMessageToGrayLog(gelfJsonString);

@@ -16,9 +16,9 @@ namespace Esilog.Gelf4net.Appender
         private static int SHORT_MESSAGE_LENGTH = 250;
         private const string GELF_VERSION = "1.0";
 
-        internal string BuildFromLoggingEvent(log4net.Core.LoggingEvent loggingEvent, string hostName, string facility, bool isConfiguredToIncludeLocationInformation, Dictionary<string, string> innerAdditionalFields)
+        internal string BuildFromLoggingEvent(string message, log4net.Core.LoggingEvent loggingEvent, string hostName, string facility, bool isConfiguredToIncludeLocationInformation, Dictionary<string, string> innerAdditionalFields)
         {
-            var fullMessage = GetFullMessage(loggingEvent);
+            var fullMessage = GetFullMessage(message, loggingEvent);
             var gelfMessage = new GelfMessage
             {
                 Facility = (facility ?? "GELF"),
@@ -41,11 +41,13 @@ namespace Esilog.Gelf4net.Appender
             return GetGelfJsonMessage(loggingEvent, innerAdditionalFields, gelfMessage);
         }
 
-        private static string GetFullMessage(log4net.Core.LoggingEvent loggingEvent)
+        private string GetFullMessage(string message, log4net.Core.LoggingEvent loggingEvent)
         {
-            var fullMessage = loggingEvent.RenderedMessage;
+            var fullMessage = message;
             if (loggingEvent.ExceptionObject != null)
+            {
                 fullMessage = String.Format("{0} - {1}. {2}. {3}.", fullMessage, loggingEvent.ExceptionObject.Source, loggingEvent.ExceptionObject.Message, loggingEvent.ExceptionObject.StackTrace);
+            }
             return fullMessage;
         }
 
