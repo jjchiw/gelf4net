@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Esilog.Gelf4net.Appender
 {
     [JsonObject(MemberSerialization.OptIn)]
-    class GelfMessage
+    public class GelfMessage
     {
         [JsonProperty("facility")]
         public string Facility { get; set; }

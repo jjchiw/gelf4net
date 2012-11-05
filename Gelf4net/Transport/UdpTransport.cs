@@ -51,8 +51,6 @@ namespace Esilog.Gelf4net.Transport
             var result = new List<byte>();
             var gelfHeader = new byte[2] { Convert.ToByte(30), Convert.ToByte(15) };
             result.AddRange(gelfHeader);
-            result.Add(Convert.ToByte(30));
-            result.Add(Convert.ToByte(15));
             result.AddRange(Encoding.Default.GetBytes(messageId).ToArray<byte>());
             result.Add(Convert.ToByte(index));
 			result.Add(Convert.ToByte(chunkCount));

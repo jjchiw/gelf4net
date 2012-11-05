@@ -22,7 +22,7 @@ namespace Gelf4netTest
 		public void Start()
 		{
 			//"public-graylog2.taulia.com"
-			graylogServerHost = "192.168.1.102";
+			graylogServerHost = "10.0.1.64";
 		}
 
 		[Test()]
