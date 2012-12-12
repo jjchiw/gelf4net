@@ -5,13 +5,19 @@ using System.Text;
 using NUnit.Framework;
 using System.Security.Cryptography;
 using Esilog.Gelf4net.Transport;
+using System.Net;
+using System.Net.Sockets;
+using System.IO.Compression;
+using System.IO;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Gelf4netTest.Appender
 {
     [TestFixture]
     class UdpTransportTests
     {
-        [Test()]
+        [Test]
         public void TestMessageId()
         {
             // Arrange
@@ -25,9 +31,7 @@ namespace Gelf4netTest.Appender
             Assert.AreEqual(actual.Length, expectedLength);
         }
 
-
-
-        [Test()]
+        [Test]
         public void CreateChunkedMessagePart_StartsWithCorrectHeader()
         {
             // Arrange
@@ -43,7 +47,7 @@ namespace Gelf4netTest.Appender
             Assert.That(result[1], Is.EqualTo(15));
         }
 
-        [Test()]
+        [Test]
         public void CreateChunkedMessagePart_ContainsMessageId()
         {
             // Arrange
@@ -65,7 +69,7 @@ namespace Gelf4netTest.Appender
             Assert.That(result[9], Is.EqualTo((int)'4'));
         }
 
-        [Test()]
+        [Test]
         public void CreateChunkedMessagePart_EndsWithIndexAndCount()
         {
             // Arrange
@@ -79,6 +83,67 @@ namespace Gelf4netTest.Appender
             // Assert
             Assert.That(result[10], Is.EqualTo(index));
             Assert.That(result[11], Is.EqualTo(chunkCount));
+        }
+
+        [Test]
+        public void SendsMessage()
+        {
+
+            string receivedMessage = null;
+            var endPoint = new IPEndPoint(IPAddress.Any, 0);
+            var client = new UdpClient(endPoint);
+            var port = ((IPEndPoint)client.Client.LocalEndPoint).Port;
+            client.BeginReceive(new AsyncCallback(result =>
+            {
+                UdpClient u = (UdpClient)((UdpState)(result.AsyncState)).Client;
+                IPEndPoint e = (IPEndPoint)((UdpState)(result.AsyncState)).Endpoint;
+
+                Byte[] receiveBytes = u.EndReceive(result, ref e);
+                receivedMessage = Encoding.UTF8.GetString(Decompress(receiveBytes));
+            }), new UdpState
+            {
+                Endpoint = endPoint,
+                Client = client
+            });
+
+            var messageToSend = "THIS IS A TEST!!!";
+            var transport= new UdpTransport();
+            transport.MaxChunkSize = 1024;
+
+            transport.Send(Environment.MachineName, "127.0.0.1", port, messageToSend);
+
+            var stopWatch = Stopwatch.StartNew();
+            while (receivedMessage == null || stopWatch.ElapsedMilliseconds > 10000)
+            {
+                Thread.Sleep(100);
+            }
+
+            Assert.AreEqual(messageToSend, receivedMessage);
+        }
+
+        private static byte[] Decompress(byte[] gzip)
+        {
+            // Create a GZIP stream with decompression mode.
+            // ... Then create a buffer and write into while reading from the GZIP stream.
+            using (GZipStream stream = new GZipStream(new MemoryStream(gzip), CompressionMode.Decompress))
+            {
+                const int size = 4096;
+                byte[] buffer = new byte[size];
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    int count = 0;
+                    do
+                    {
+                        count = stream.Read(buffer, 0, size);
+                        if (count > 0)
+                        {
+                            memory.Write(buffer, 0, count);
+                        }
+                    }
+                    while (count > 0);
+                    return memory.ToArray();
+                }
+            }
         }
     }
 }
