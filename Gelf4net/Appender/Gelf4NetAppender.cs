@@ -11,6 +11,7 @@ using log4net.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Esilog.Gelf4net.Layout;
+using log4net.Util;
 
 namespace Esilog.Gelf4net.Appender
 {
@@ -28,6 +29,11 @@ namespace Esilog.Gelf4net.Appender
         /// The max chunk size of udp.
         /// </summary>
         private int _maxChunkSize;
+
+        /// <summary>
+        /// The name of the host machine
+        /// </summary>
+        public string Host { get; set; }
 
         /// <summary>
         /// Gets or sets GrayLogServerHost.
@@ -116,8 +122,8 @@ namespace Esilog.Gelf4net.Appender
         public override void ActivateOptions()
         {
             _transport = UseUdpTransport
-                             ? (GelfTransport) new UdpTransport {MaxChunkSize = MaxChunkSize}
-                             : (GelfTransport) new AmqpTransport
+                             ? (GelfTransport) new UdpTransport(GetLoggingHostName(), GrayLogServerHostIpAddress, GrayLogServerPort) {MaxChunkSize = MaxChunkSize}
+                             : (GelfTransport)new AmqpTransport(GetLoggingHostName(), GrayLogServerHostIpAddress, GrayLogServerPort)
                                                    {
                                                        VirtualHost = GrayLogServerAmqpVirtualHost, 
                                                        User = GrayLogServerAmqpUser, 
@@ -132,35 +138,7 @@ namespace Esilog.Gelf4net.Appender
         {
             var message = RenderLoggingEvent(loggingEvent);
 
-            if (UseUdpTransport)
-                SendGelfMessageToGrayLog(message);
-            else
-                SendAmqpMessageToGrayLog(message);
-        }
-
-        /// <summary>
-        /// Send gelf message to graylog.
-        /// </summary>
-        /// <param name="message">The message. </param>
-        private void SendGelfMessageToGrayLog(string message)
-        {
-            if (GrayLogServerHostIpAddress == string.Empty)
-                GrayLogServerHostIpAddress = GetIpAddressFromHostName();
-            _transport.Send(Environment.MachineName, GrayLogServerHostIpAddress, GrayLogServerPort, message);
-        }
-
-        /// <summary>
-        /// Send amqp message to graylog.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        private void SendAmqpMessageToGrayLog(string message)
-        {
-            if (GrayLogServerHostIpAddress == string.Empty)
-            {
-                GrayLogServerHostIpAddress = GetIpAddressFromHostName();
-            }
-
-            _transport.Send(Environment.MachineName, GrayLogServerHostIpAddress, GrayLogServerAmqpPort, message);
+            _transport.Send(message);
         }
 
         /// <summary>
@@ -171,6 +149,28 @@ namespace Esilog.Gelf4net.Appender
         {
             IPAddress[] addresslist = Dns.GetHostAddresses(GrayLogServerHost);
             return addresslist[0].ToString();
+        }
+
+        /// <summary>
+        /// Get logging host name.
+        /// </summary>
+        /// <returns>logging host name. </returns>
+        private string GetLoggingHostName()
+        {
+            string ret = Host;
+            if (ret == null)
+            {
+                try
+                {
+                    ret = System.Net.Dns.GetHostName();
+                }
+                catch (SocketException)
+                {
+                    ret = Environment.MachineName;
+                }
+            }
+
+            return ret;
         }
     }
 }

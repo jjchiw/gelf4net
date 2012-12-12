@@ -7,7 +7,7 @@ namespace Esilog.Gelf4net.Transport
 {
     public abstract class GelfTransport
     {
-        public abstract void Send(string serverHostName, string serverIpAddress, int serverPort, string message);
+        public abstract void Send(string message);
 
         protected byte[] GzipMessage(String message)
         {

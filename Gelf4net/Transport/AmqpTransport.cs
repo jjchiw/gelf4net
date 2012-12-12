@@ -4,19 +4,30 @@ namespace Esilog.Gelf4net.Transport
 {
     class AmqpTransport : GelfTransport
     {
+        private string _hostName;
+        private string _remoteIpAddress;
+        private int _remotePort;
+
+        public AmqpTransport(string hostName, string serverIpAddress, int serverPort)
+        {
+            _hostName = hostName;
+            _remoteIpAddress = serverIpAddress;
+            _remotePort = serverPort;
+        }
+
         public string VirtualHost { get; set; }
         public string User { get; set; }
         public string Password { get; set; }
         public string Queue { get; set; }
 
-        public override void Send(string serverHostName, string serverIpAddress, int serverPort, string message)
+        public override void Send(string message)
         {
             //Create the Connection 
             var factory = new ConnectionFactory()
             {
                 Protocol = Protocols.FromEnvironment(),
-                HostName = serverIpAddress,
-                Port = serverPort,
+                HostName = _remoteIpAddress,
+                Port = _remotePort,
                 VirtualHost = VirtualHost,
                 UserName = User,
                 Password = Password
@@ -30,7 +41,6 @@ namespace Esilog.Gelf4net.Transport
                 model.QueueBind(Queue, "sendExchange", "key");
                 byte[] messageBodyBytes = GzipMessage(message);
                 model.BasicPublish(Queue, "key", null, messageBodyBytes);
-
             }
         }
     }

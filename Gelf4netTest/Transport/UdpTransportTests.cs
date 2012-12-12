@@ -24,7 +24,7 @@ namespace Gelf4netTest.Appender
             string hostName = "localhost";
 
             // Act
-            string actual = new UdpTransport().GenerateMessageId(hostName);
+            string actual = new UdpTransport(hostName, "127.0.0.1", 0).GenerateMessageId();
 
             // Assert
             const int expectedLength = 8;
@@ -40,7 +40,7 @@ namespace Gelf4netTest.Appender
             int chunkCount = 1;
 
             // Act
-            byte[] result = new UdpTransport().CreateChunkedMessagePart(messageId, index, chunkCount);
+            byte[] result = new UdpTransport("localhost", "127.0.0.1", 0).CreateChunkedMessagePart(messageId, index, chunkCount);
 
             // Assert
             Assert.That(result[0], Is.EqualTo(30));
@@ -56,7 +56,7 @@ namespace Gelf4netTest.Appender
             int chunkCount = 1;
 
             // Act
-            byte[] result = new UdpTransport().CreateChunkedMessagePart(messageId, index, chunkCount);
+            byte[] result = new UdpTransport("localhost", "127.0.0.1", 0).CreateChunkedMessagePart(messageId, index, chunkCount);
 
             // Assert
             Assert.That(result[2], Is.EqualTo((int)'A'));
@@ -78,7 +78,7 @@ namespace Gelf4netTest.Appender
             int chunkCount = 2;
 
             // Act
-            byte[] result = new UdpTransport().CreateChunkedMessagePart(messageId, index, chunkCount);
+            byte[] result = new UdpTransport("localhost", "127.0.0.1", 0).CreateChunkedMessagePart(messageId, index, chunkCount);
 
             // Assert
             Assert.That(result[10], Is.EqualTo(index));
@@ -88,7 +88,6 @@ namespace Gelf4netTest.Appender
         [Test]
         public void SendsMessage()
         {
-
             string receivedMessage = null;
             var endPoint = new IPEndPoint(IPAddress.Any, 0);
             var client = new UdpClient(endPoint);
@@ -107,13 +106,13 @@ namespace Gelf4netTest.Appender
             });
 
             var messageToSend = "THIS IS A TEST!!!";
-            var transport= new UdpTransport();
+            var transport = new UdpTransport(Environment.MachineName, "127.0.0.1", port);
             transport.MaxChunkSize = 1024;
 
-            transport.Send(Environment.MachineName, "127.0.0.1", port, messageToSend);
+            transport.Send(messageToSend);
 
             var stopWatch = Stopwatch.StartNew();
-            while (receivedMessage == null || stopWatch.ElapsedMilliseconds > 10000)
+            while (receivedMessage == null || stopWatch.ElapsedMilliseconds < 10000)
             {
                 Thread.Sleep(100);
             }
