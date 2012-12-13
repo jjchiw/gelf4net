@@ -51,14 +51,17 @@ Accept LoggingEvent.Properties, to send the variables to graylog2 as additional 
 					<appender-ref ref="GelfFileAppender"/>
 			</root>
 
-			<appender name="GelfFileAppender" type="Esilog.Gelf4net.Appender.Gelf4NetAppender, Esilog.Gelf4net">
-				<param name="GrayLogServerHost" value="public-graylog2.taulia.com" />
+			<appender name="GelfAppender" type="Esilog.Gelf4net.Appender.Gelf4NetAppender, Esilog.Gelf4net">
+			  <param name="GrayLogServerHostIpAddress" value="localhost" />
+			  <param name="GrayLogServerAmqpUser" value="guest" />
+			  <param name="GrayLogServerAmqpPassword" value="guest" />
+			  
+			  <layout type="Esilog.Gelf4net.Layout.GelfLayout, Esilog.Gelf4net">
+				<param name="AdditionalFields" value="app:RandomSentence,version:1.0" />
 				<param name="Facility" value="RandomPhrases" />
-				<param name="AdditionalFields" value="app:RandomSentece,version:1.0" />
-
-				<layout type="log4net.Layout.PatternLayout">
-					<param name="ConversionPattern" value="%-5p%d{yyyy-MM-dd hh:mm:ss}%m%n"/>
-				</layout>
+				<param name="IncludeLocationInformation" value="true"/>
+			  </layout>
+			  
 			</appender>
 
 		</log4net>

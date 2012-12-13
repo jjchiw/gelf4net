@@ -8,41 +8,47 @@ using System.Security.Cryptography;
 
 namespace Esilog.Gelf4net.Transport
 {
-    public class UdpTransport : GelfTransport
+    public class UdpTransport : GelfTransport   
     {
+        private UdpClient _udpClient;
+        private string _hostName;
+        private IPEndPoint _remoteEndpoint;
+
+        public UdpTransport(string hostName, string remoteIpAddress, int serverPort)
+        {
+            _hostName = hostName;
+            _remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteIpAddress), serverPort);
+            _udpClient = new UdpClient();
+        }
+
         public int MaxChunkSize { get; set; }
 		
 		private int _maxHeaderSize = 8;
 
-        public override void Send(string serverHostName, string serverIpAddress, int serverPort, string message)
+        public override void Send(string message)
         {
-            var ipAddress = IPAddress.Parse(serverIpAddress);
-            IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, serverPort);
+            var gzipMessage = GzipMessage(message);
 
-            using(UdpClient udpClient = new UdpClient()){
-                var gzipMessage = GzipMessage(message);
-
-                if (MaxChunkSize < gzipMessage.Length)
+            if (MaxChunkSize < gzipMessage.Length)
+            {
+                var chunkCount = (gzipMessage.Length / MaxChunkSize) + 1;
+                var messageId = GenerateMessageId();
+                for (int i = 0; i < chunkCount; i++)
                 {
-                    var chunkCount = (gzipMessage.Length / MaxChunkSize) + 1;
-                    var messageId = GenerateMessageId(serverHostName);
-                    for (int i = 0; i < chunkCount; i++)
-                    {
-                        var messageChunkPrefix = CreateChunkedMessagePart(messageId, i, chunkCount);
-                        var skip = i * MaxChunkSize;
-                        var messageChunkSuffix = gzipMessage.Skip(skip).Take(MaxChunkSize).ToArray<byte>();
+                    var messageChunkPrefix = CreateChunkedMessagePart(messageId, i, chunkCount);
+                    var skip = i * MaxChunkSize;
+                    var messageChunkSuffix = gzipMessage.Skip(skip).Take(MaxChunkSize).ToArray<byte>();
 
-                        var messageChunkFull = new byte[messageChunkPrefix.Length + messageChunkSuffix.Length];
-                        messageChunkPrefix.CopyTo(messageChunkFull, 0);
-                        messageChunkSuffix.CopyTo(messageChunkFull, messageChunkPrefix.Length);
+                    var messageChunkFull = new byte[messageChunkPrefix.Length + messageChunkSuffix.Length];
+                    messageChunkPrefix.CopyTo(messageChunkFull, 0);
+                    messageChunkSuffix.CopyTo(messageChunkFull, messageChunkPrefix.Length);
 
-                        udpClient.Send(messageChunkFull, messageChunkFull.Length, ipEndPoint);
-                    }
+                    _udpClient.Send(messageChunkFull, messageChunkFull.Length, _remoteEndpoint);
                 }
-                else
-                {
-                    udpClient.Send(gzipMessage, gzipMessage.Length, ipEndPoint);
-                }
+            }
+            else
+            {
+                _udpClient.Send(gzipMessage, gzipMessage.Length, _remoteEndpoint);
             }
         }
 
@@ -58,9 +64,9 @@ namespace Esilog.Gelf4net.Transport
             return result.ToArray<byte>();
         }
 
-        public string GenerateMessageId(string serverHostName)
+        public string GenerateMessageId()
         {
-            var md5String = String.Join("", MD5.Create().ComputeHash(Encoding.Default.GetBytes(serverHostName)).Select(it => it.ToString("x2")).ToArray<string>());
+            var md5String = String.Join("", MD5.Create().ComputeHash(Encoding.Default.GetBytes(_hostName)).Select(it => it.ToString("x2")).ToArray<string>());
             var random = new Random((int)DateTime.Now.Ticks);
             var sb = new StringBuilder();
             var t = DateTime.Now.Ticks % 1000000000;
