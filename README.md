@@ -47,20 +47,34 @@ Accept LoggingEvent.Properties, to send the variables to graylog2 as additional 
 
 		<log4net>
 			<root>
-				<level value="DEBUG"/>
-					<appender-ref ref="GelfFileAppender"/>
+			  <level value="DEBUG"/>
+			  <appender-ref ref="GelfUdpAppender"/>
+			  <appender-ref ref="GelfAmqpAppender"/>
 			</root>
 
-			<appender name="GelfFileAppender" type="Esilog.Gelf4net.Appender.Gelf4NetAppender, Esilog.Gelf4net">
-				<param name="GrayLogServerHost" value="public-graylog2.taulia.com" />
+			<appender name="GelfUdpAppender" type="Esilog.Gelf4net.Appender.GelfUdpAppender, Esilog.Gelf4net">
+			  <remoteAddress value="127.0.0.1" />
+			  <remotePort value="12201" />
+			  <layout type="Esilog.Gelf4net.Layout.GelfLayout, Esilog.Gelf4net">
+				<param name="AdditionalFields" value="app:RandomSentence,version:1.0" />
 				<param name="Facility" value="RandomPhrases" />
-				<param name="AdditionalFields" value="app:RandomSentece,version:1.0" />
-
-				<layout type="log4net.Layout.PatternLayout">
-					<param name="ConversionPattern" value="%-5p%d{yyyy-MM-dd hh:mm:ss}%m%n"/>
-				</layout>
+				<param name="IncludeLocationInformation" value="true"/>
+			  </layout>
 			</appender>
 
+			<appender name="GelfAmqpAppender" type="Esilog.Gelf4net.Appender.GelfAmqpAppender, Esilog.Gelf4net">
+			  <remoteAddress value="127.0.0.1" />
+			  <remotePort value="5672" />
+			  <username value="guest" />
+			  <password value="guest" />
+			  <virtualHost value="/" />
+			  <remoteQueue value="queue1" />
+			  <layout type="Esilog.Gelf4net.Layout.GelfLayout, Esilog.Gelf4net">
+				<param name="AdditionalFields" value="app:RandomSentence,version:1.0" />
+				<param name="Facility" value="RandomPhrases" />
+				<param name="IncludeLocationInformation" value="true"/>
+			  </layout>
+			</appender>
 		</log4net>
 
 		<startup>

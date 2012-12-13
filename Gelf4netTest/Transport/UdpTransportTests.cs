@@ -4,30 +4,28 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using System.Security.Cryptography;
-using Esilog.Gelf4net.Transport;
+using System.Net;
+using System.Net.Sockets;
+using System.IO.Compression;
+using System.IO;
+using System.Diagnostics;
+using System.Threading;
+using Esilog.Gelf4net.Appender;
 
 namespace Gelf4netTest.Appender
 {
     [TestFixture]
     class UdpTransportTests
     {
-        [Test()]
+        [Test]
         public void TestMessageId()
         {
-            // Arrange
-            string hostName = "localhost";
-
-            // Act
-            string actual = new UdpTransport().GenerateMessageId(hostName);
-
-            // Assert
             const int expectedLength = 8;
+            var actual = GelfUdpAppender.GenerateMessageId();
             Assert.AreEqual(actual.Length, expectedLength);
         }
 
-
-
-        [Test()]
+        [Test]
         public void CreateChunkedMessagePart_StartsWithCorrectHeader()
         {
             // Arrange
@@ -36,14 +34,14 @@ namespace Gelf4netTest.Appender
             int chunkCount = 1;
 
             // Act
-            byte[] result = new UdpTransport().CreateChunkedMessagePart(messageId, index, chunkCount);
+            byte[] result = GelfUdpAppender.CreateChunkedMessagePart(messageId, index, chunkCount);
 
             // Assert
             Assert.That(result[0], Is.EqualTo(30));
             Assert.That(result[1], Is.EqualTo(15));
         }
 
-        [Test()]
+        [Test]
         public void CreateChunkedMessagePart_ContainsMessageId()
         {
             // Arrange
@@ -52,7 +50,7 @@ namespace Gelf4netTest.Appender
             int chunkCount = 1;
 
             // Act
-            byte[] result = new UdpTransport().CreateChunkedMessagePart(messageId, index, chunkCount);
+            byte[] result = GelfUdpAppender.CreateChunkedMessagePart(messageId, index, chunkCount);
 
             // Assert
             Assert.That(result[2], Is.EqualTo((int)'A'));
@@ -65,7 +63,7 @@ namespace Gelf4netTest.Appender
             Assert.That(result[9], Is.EqualTo((int)'4'));
         }
 
-        [Test()]
+        [Test]
         public void CreateChunkedMessagePart_EndsWithIndexAndCount()
         {
             // Arrange
@@ -74,7 +72,7 @@ namespace Gelf4netTest.Appender
             int chunkCount = 2;
 
             // Act
-            byte[] result = new UdpTransport().CreateChunkedMessagePart(messageId, index, chunkCount);
+            byte[] result = GelfUdpAppender.CreateChunkedMessagePart(messageId, index, chunkCount);
 
             // Assert
             Assert.That(result[10], Is.EqualTo(index));

@@ -45,9 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Appender\Gelf4NetAppenderTests.cs" />
+    <Compile Include="Layout\GelfLayoutTests.cs" />
     <Compile Include="Transport\UdpTransportTests.cs" />
     <Compile Include="LoremIpsum.Designer.cs" />
-    <Compile Include="TestGelf4NetAppenderWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

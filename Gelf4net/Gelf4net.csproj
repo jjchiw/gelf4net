@@ -52,13 +52,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Appender\Gelf4NetAppender.cs" />
-    <Compile Include="Appender\GelfJsonBuilder.cs" />
-    <Compile Include="Appender\GelfMessage.cs" />
+    <Compile Include="Appender\GelfAmqpAppender.cs" />
+    <Compile Include="Appender\GelfUdpAppender.cs" />
+    <Compile Include="GelfMessage.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Layout\GelfLayout.cs" />
+    <Compile Include="ObjectRenderer\GelfRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Transport\AmqpTransport.cs" />
-    <Compile Include="Transport\GelfTransport.cs" />
-    <Compile Include="Transport\UdpTransport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
