@@ -54,5 +54,19 @@ namespace gelf4net
             return compressed;
         }
 
+        public static double ToUnixTimestamp(this DateTime d)
+        {
+          var duration = d.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0);
+
+          return duration.TotalSeconds;
+        }
+
+        public static DateTime FromUnixTimestamp(this double d)
+        {
+
+          var datetime = new DateTime(1970, 1, 1, 0, 0, 0).AddMilliseconds(d*1000).ToLocalTime();
+
+          return datetime;
+        }
     }
 }

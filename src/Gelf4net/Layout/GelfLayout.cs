@@ -20,6 +20,7 @@ namespace gelf4net.Layout
         private const int SHORT_MESSAGE_LENGTH = 250;
         private Dictionary<string, string> innerAdditionalFields;
         private string _additionalFields;
+        private PatternLayout _patternLayout;
 
         public GelfLayout()
         {
@@ -27,6 +28,7 @@ namespace gelf4net.Layout
             IncludeLocationInformation = false;
             LogStackTraceFromMessage = true;
             IgnoresException = false;
+            _patternLayout = new PatternLayout();
         }
 
         /// <summary>
@@ -65,6 +67,11 @@ namespace gelf4net.Layout
         }
 
         /// <summary>
+        /// The conversion pattern to use for the message body
+        /// </summary>
+        public string ConversionPattern { get; set; }
+
+        /// <summary>
         /// If should append the stack trace to the message if the message is an exception
         /// </summary>
         public bool LogStackTraceFromMessage { get; set; }
@@ -91,30 +98,40 @@ namespace gelf4net.Layout
 
         private void AddLoggingEventToMessage(LoggingEvent loggingEvent, GelfMessage gelfMessage)
         {
-            var messageObject = loggingEvent.MessageObject;
-            if (messageObject == null)
+            //If conversion pattern is specified then defer to PatterLayout for building the message body
+            if (!string.IsNullOrWhiteSpace(ConversionPattern))
             {
-                gelfMessage.FullMessage = SystemInfo.NullText;
-                gelfMessage.ShortMessage = SystemInfo.NullText;
+                var message = GetValueFromPattern(loggingEvent, ConversionPattern);
+                gelfMessage.FullMessage = message;
+                gelfMessage.ShortMessage = message.TruncateMessage(SHORT_MESSAGE_LENGTH);
             }
+            else //Otherwise do our custom message builder stuff
+            {
+                var messageObject = loggingEvent.MessageObject;
+                if (messageObject == null)
+                {
+                    gelfMessage.FullMessage = SystemInfo.NullText;
+                    gelfMessage.ShortMessage = SystemInfo.NullText;
+                }
 
-            if (messageObject is string || messageObject is SystemStringFormat)
-            {
-                var fullMessage = messageObject.ToString();
-                gelfMessage.FullMessage = fullMessage;
-                gelfMessage.ShortMessage = fullMessage.TruncateMessage(SHORT_MESSAGE_LENGTH);
-            }
-            else if (messageObject is IDictionary)
-            {
-                AddToMessage(gelfMessage, messageObject as IDictionary);
-            }
-            else
-            {
-                AddToMessage(gelfMessage, messageObject.ToDictionary());
-            }
+                if (messageObject is string || messageObject is SystemStringFormat)
+                {
+                    var fullMessage = messageObject.ToString();
+                    gelfMessage.FullMessage = fullMessage;
+                    gelfMessage.ShortMessage = fullMessage.TruncateMessage(SHORT_MESSAGE_LENGTH);
+                }
+                else if (messageObject is IDictionary)
+                {
+                    AddToMessage(gelfMessage, messageObject as IDictionary);
+                }
+                else
+                {
+                    AddToMessage(gelfMessage, messageObject.ToDictionary());
+                }
 
-            gelfMessage.FullMessage = gelfMessage.FullMessage ?? messageObject.ToString();
-            gelfMessage.ShortMessage = gelfMessage.ShortMessage ?? gelfMessage.FullMessage.TruncateMessage(SHORT_MESSAGE_LENGTH);
+                gelfMessage.FullMessage = gelfMessage.FullMessage ?? messageObject.ToString();
+                gelfMessage.ShortMessage = gelfMessage.ShortMessage ?? gelfMessage.FullMessage.TruncateMessage(SHORT_MESSAGE_LENGTH);
+            }
 
             if (LogStackTraceFromMessage && loggingEvent.ExceptionObject != null)
             {
@@ -183,10 +200,29 @@ namespace gelf4net.Layout
             foreach (var kvp in additionalFields)
             {
                 var key = kvp.Key.StartsWith("_") ? kvp.Key : "_" + kvp.Key;
-                message[key] = kvp.Value;
+
+                //If the value starts with a '%' then defer to the pattern layout
+                var value = kvp.Value.StartsWith("%") ? GetValueFromPattern(loggingEvent, kvp.Value) : kvp.Value;
+                message[key] = value;
             }
         }
-        
+
+        private string GetValueFromPattern(LoggingEvent loggingEvent, string pattern)
+        {
+            //Reset the pattern layout
+            _patternLayout.ConversionPattern = pattern;
+            _patternLayout.ActivateOptions();
+
+            //Write the results
+            var sb = new StringBuilder();
+            using(var writer = new System.IO.StringWriter(sb))
+            {
+                _patternLayout.Format(writer, loggingEvent);
+                writer.Flush();
+                return sb.ToString();
+            }
+        }
+
         private static long GetSyslogSeverity(Level level)
         {
             if (level == log4net.Core.Level.Alert)

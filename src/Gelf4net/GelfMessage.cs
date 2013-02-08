@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
@@ -140,17 +141,16 @@ namespace gelf4net
                     return DateTime.MinValue;
 
                 var val = this["timestamp"];
-                if (val is DateTime)
-                    return (DateTime)val;
-
-                return DateTime.Parse(val as string);
+                double value;
+                var parsed = double.TryParse(val as string, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
+                return parsed ? value.FromUnixTimestamp() : DateTime.MinValue;
             }
             set
             {
                 if (!this.ContainsKey("timestamp"))
-                    this.Add("timestamp", value.ToString());
+                    this.Add("timestamp", value.ToUnixTimestamp().ToString(CultureInfo.InvariantCulture));
                 else
-                    this["timestamp"] = value.ToString();
+                    this["timestamp"] = value.ToUnixTimestamp().ToString(CultureInfo.InvariantCulture);
             }
         }
 

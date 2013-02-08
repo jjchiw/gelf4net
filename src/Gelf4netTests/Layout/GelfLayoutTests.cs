@@ -186,7 +186,6 @@ namespace Gelf4netTest.Layout
         public void DictionaryMessage()
         {
             var layout = new GelfLayout();
-
             var message = new Dictionary<string, string> { { "Test", "1" }, { "_Test2", "2" } };
 
             var loggingEvent = GetLogginEvent(message);
@@ -195,6 +194,38 @@ namespace Gelf4netTest.Layout
 
             Assert.AreEqual(result["_Test"], message["Test"]);
             Assert.AreEqual(result["_Test2"], message["_Test2"]);
+        }
+
+        [Test]
+        public void PatternConversionInAdditionalProperties()
+        {
+            var layout = new GelfLayout();
+            layout.AdditionalFields = "Level:%level,AppDomain:%a,LoggerName:%c{1},ThreadName:%t";
+            var message = new { Message = "Test" };
+
+            var loggingEvent = GetLogginEvent(message);
+
+            var result = GetMessage(layout, loggingEvent);
+
+            Assert.AreEqual(result["_Level"], "DEBUG");
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(result["_AppDomain"].ToString()));
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(result["_ThreadName"].ToString()));
+            Assert.AreEqual("Class", result["_LoggerName"]);
+        }
+
+        [Test]
+        public void PatternConversionLayoutSpecified()
+        {
+            var layout = new GelfLayout();
+            layout.ConversionPattern = "[%level] - [%c{1}]";
+            var message = new { Message = "Test" };
+
+            var loggingEvent = GetLogginEvent(message);
+
+            var result = GetMessage(layout, loggingEvent);
+
+            Assert.AreEqual("[DEBUG] - [Class]", result["full_message"]);
+            Assert.AreEqual("[DEBUG] - [Class]", result["short_message"]);
         }
         
         [Test]
@@ -241,7 +272,8 @@ namespace Gelf4netTest.Layout
         }
         private static LoggingEvent GetLogginEvent(object message)
         {
-            return new LoggingEvent((Type)null, (ILoggerRepository)null, null, Level.Debug, message, null);
+            
+            return new LoggingEvent((Type)null, (ILoggerRepository)null, "Test.Logger.Class", Level.Debug, message, null);
         }
     }
 }

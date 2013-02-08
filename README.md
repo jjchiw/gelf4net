@@ -27,12 +27,14 @@ gelf4net gives you the ability to log messages either through Udp or Amqp.
 		</root>
 
 		<appender name="GelfUdpAppender" type="Gelf4net.Appender.GelfUdpAppender, Gelf4net">
-		  <remoteAddress value="127.0.0.1" />
+		  <remoteAddress value="127.0.0.1"/>
 		  <remotePort value="12201" />
 		  <layout type="Gelf4net.Layout.GelfLayout, Gelf4net">
-			<param name="AdditionalFields" value="app:RandomSentence,version:1.0" />
+			<param name="AdditionalFields" value="app:RandomSentence,version:1.0,Level:%level" />
 			<param name="Facility" value="RandomPhrases" />
 			<param name="IncludeLocationInformation" value="true"/>
+			<!-- Sets the full_message and short_message to the specified pattern-->
+			<!--<param name="ConversionPattern" value="[%t] %c{1} - %m" />-->
 		  </layout>
 		</appender>
 
@@ -44,9 +46,11 @@ gelf4net gives you the ability to log messages either through Udp or Amqp.
 		  <virtualHost value="/" />
 		  <remoteQueue value="queue1" />
 		  <layout type="Gelf4net.Layout.GelfLayout, Gelf4net">
-			<param name="AdditionalFields" value="app:RandomSentence,version:1.0" />
+			<param name="AdditionalFields" value="app:RandomSentence,version:1.0,Level:%level" />
 			<param name="Facility" value="RandomPhrases" />
 			<param name="IncludeLocationInformation" value="true"/>
+			<!-- Sets the full_message and short_message to the specified pattern-->
+			<!--<param name="ConversionPattern" value="[%t] %c{1} - %m" />-->
 		  </layout>
 		</appender>
 	</log4net>
@@ -58,11 +62,12 @@ gelf4net gives you the ability to log messages either through Udp or Amqp.
 There are several ways that additional properties can be added to a log.
 
 **Configuration**  
-Any static information can be set through configuration by adding a comma separated list of key:value pairs:
+Any static information can be set through configuration by adding a comma separated list of key:value pairs.  
+You can also use conversion patterns like you would if you were using the [PatternLayout class][3]:
 
 ```  
 <layout type="Gelf4net.Layout.GelfLayout, Gelf4net">
-    <param name="AdditionalFields" value="app:RandomSentence,version:1.0" />
+    <param name="AdditionalFields" value="app:RandomSentence,version:1.0,Level:%level" />
 </layout>
 ```  
 
@@ -72,7 +77,8 @@ This will add the following fields to your GELF log:
 {
     ...
 	"_app":"RandomSentence",
-	"_version":"1.0"
+	"_version":"1.0",
+	"_Level":"DEBUG",
 	...
 }
 ```  
@@ -153,6 +159,16 @@ Pretending the previous message is longer than 250 characters, this will be your
 }
 ``` 
 
+If you want to format your message using a conversion pattern you can do so by specifying the `ConversionPattern` parameter.  
+Again you can specify all the same parameters that you would if you were using the [PatternLayout][3].
+
+```  
+		  <layout type="Gelf4net.Layout.GelfLayout, Gelf4net">
+			<param name="ConversionPattern" value="[%t] %c{1} - %m" />
+		  </layout>  
+```  
+
+
 You can also specify the message when logging custom objects:
 
 ```  
@@ -173,3 +189,4 @@ This project is licensed under the [Apache 2.0](2) license
 
 [1]: https://github.com/Graylog2/graylog2-docs/wiki/GELF
 [2]: http://www.apache.org/licenses/LICENSE-2.0.html
+[3]: http://logging.apache.org/log4net/release/sdk/log4net.Layout.PatternLayout.html
