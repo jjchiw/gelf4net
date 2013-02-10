@@ -74,7 +74,7 @@ namespace gelf4net.Appender
             }
             catch (Exception ex)
             {
-                this.ErrorHandler.Error("Unable to send logging event to remote host " + (object)this.RemoteAddress.ToString() + " on port " + (string)(object)this.RemotePort + ".", ex, ErrorCode.WriteFailure);
+                this.ErrorHandler.Error("Unable to send logging event to remote host " + this.RemoteAddress + " on port " + this.RemotePort + ".", ex, ErrorCode.WriteFailure);
             }
         }
 
