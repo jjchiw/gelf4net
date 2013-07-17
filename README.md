@@ -44,7 +44,8 @@ gelf4net gives you the ability to log messages either through Udp or Amqp.
 		  <username value="guest" />
 		  <password value="guest" />
 		  <virtualHost value="/" />
-		  <remoteQueue value="queue1" />
+		  <exchange value="sendExchange" />
+		  <key value="key" />
 		  <layout type="Gelf4net.Layout.GelfLayout, Gelf4net">
 			<param name="AdditionalFields" value="app:RandomSentence,version:1.0,Level:%level" />
 			<param name="Facility" value="RandomPhrases" />

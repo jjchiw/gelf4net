@@ -19,7 +19,8 @@ namespace gelf4net.Appender
         protected ConnectionFactory ConnectionFactory { get; set; }
         public string RemoteAddress { get; set; }
         public int RemotePort { get; set; }
-        public string RemoteQueue { get; set; }
+        public string Exchange { get; set; }
+        public string Key { get; set; }
         public string VirtualHost { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
@@ -52,11 +53,8 @@ namespace gelf4net.Appender
             using (IConnection conn = ConnectionFactory.CreateConnection())
             {
                 var model = conn.CreateModel();
-                model.ExchangeDeclare("sendExchange", ExchangeType.Direct);
-                model.QueueDeclare(RemoteQueue, true, true, true, null);
-                model.QueueBind(RemoteQueue, "sendExchange", "key");
                 byte[] messageBodyBytes = message;
-                model.BasicPublish(RemoteQueue, "key", null, messageBodyBytes);
+                model.BasicPublish(Exchange, Key, null, messageBodyBytes);
             }
         }
     }
