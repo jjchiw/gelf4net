@@ -176,7 +176,7 @@ task CreatePackages -depends PrepareRelease  {
 	$script:packit.package_tags = "tools utilities"
 	$script:packit.package_iconUrl = "http://nuget.org/Content/Images/packageDefaultIcon.png"
 	$script:packit.versionAssemblyName = $script:packit.binaries_Location + "\gelf4net.dll"
-	invoke-packit $packageName $PackageVersion @{"log4net"="[1.2.10]"} "binaries\gelf4net.dll" @{} 
+	invoke-packit $packageName $PackageVersion @{"log4net"="1.2.10"} "binaries\gelf4net.dll" @{} 
 	#endregion
 		
 	remove-module packit
