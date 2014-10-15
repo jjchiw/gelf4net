@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text.RegularExpressions;
-using log4net.Appender;
 using log4net.Core;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using gelf4net.Layout;
-using log4net.Util;
 using System.Text;
 using System.Security.Cryptography;
 using gelf4net.Util.TypeConverters;
