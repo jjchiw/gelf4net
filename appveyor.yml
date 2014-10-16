@@ -1,2 +1,5 @@
+before_build:
+  - nuget restore
+
 build:
   project: src/Gelf4net.sln      # path to Visual Studio solution or project
