@@ -1,15 +1,12 @@
-﻿using gelf4net.Appender;
+﻿using Newtonsoft.Json;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Layout;
 using log4net.Util;
-using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Net.Sockets;
 using System.Text;
 
 namespace gelf4net.Layout
@@ -200,6 +197,8 @@ namespace gelf4net.Layout
                     gelfMessage.FullMessage = value;
                 else if (ShortMessageKeyValues.Contains(key, StringComparer.OrdinalIgnoreCase))
                     gelfMessage.ShortMessage = value.TruncateMessage(SHORT_MESSAGE_LENGTH);
+                else if (TimeStampKeyValues.Contains(key, StringComparer.OrdinalIgnoreCase))
+                    gelfMessage.TimeStamp = Double.Parse(value).FromUnixTimestamp();
                 else
                 {
                     key = key.StartsWith("_") ? key : "_" + key;
@@ -287,5 +286,6 @@ namespace gelf4net.Layout
 
         private static IEnumerable<string> FullMessageKeyValues = new[] { "FULLMESSAGE", "FULL_MESSAGE", "MESSAGE" };
         private static IEnumerable<string> ShortMessageKeyValues = new[] { "SHORTMESSAGE", "SHORT_MESSAGE", "MESSAGE" };
+        private static IEnumerable<string> TimeStampKeyValues = new[] { "TIMESTAMP", "TIME_STAMP" };
     }
 }

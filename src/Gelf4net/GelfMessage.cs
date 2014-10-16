@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace gelf4net

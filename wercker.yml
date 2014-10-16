@@ -1,0 +1,7 @@
+box: wercker-labs/windows@0.0.3
+build:
+  steps:
+    - wercker-labs/nuget:
+        packages-configs: src/Gelf4net/packages.config src/Gelf4netTests/packages.config
+    - wercker-labs/msbuild:
+        solution: src/Gelf4net.sln
