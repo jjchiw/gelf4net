@@ -1,0 +1,2 @@
+build:
+  project: src/Gelf4net.sln      # path to Visual Studio solution or project
