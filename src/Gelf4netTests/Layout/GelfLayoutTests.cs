@@ -367,8 +367,10 @@ namespace Gelf4netTest.Layout
 
             Assert.AreEqual(message, result.FullMessage);
             Assert.AreEqual(message, result.ShortMessage);
-            Assert.IsNotNullOrEmpty(result.Line);
-            Assert.IsNotNullOrEmpty(result.File);
+            Assert.IsNotNull(result.Line);
+            Assert.IsNotEmpty(result.Line);
+            Assert.IsNotNull(result.File);
+            Assert.IsNotEmpty(result.File);
         }
 
         [Test]
