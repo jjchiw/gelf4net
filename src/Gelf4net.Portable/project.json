@@ -1,14 +1,13 @@
 ﻿{
   "supports": {},
-    "dependencies": {
-        "log4net": "2.0.7",
-        "NETStandard.Library": "1.6.0",
-        "Newtonsoft.Json": "9.0.1",
-        "RabbitMQ.Client": "4.1.1",
-        "System.ComponentModel.TypeConverter": "4.3.0"
-    },
+  "dependencies": {
+    "log4net": "2.0.7",
+    "NETStandard.Library": "1.6.0",
+    "Newtonsoft.Json": "9.0.1",
+    "RabbitMQ.Client": "4.1.1",
+    "System.ComponentModel.TypeConverter": "4.3.0"
+  },
   "frameworks": {
-    "netstandard1.5": {
-    }
+    "netstandard1.5": {}
   }
 }
