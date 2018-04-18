@@ -34,11 +34,11 @@ namespace Gelf4Net.Appender
             log4net.Util.TypeConverters.ConverterRegistry.AddConverter(typeof(IPAddress), new IPAddressConverter());
         }
 
-        public override async void ActivateOptions()
+        public override void ActivateOptions()
         {
             if (RemoteAddress == null)
             {
-                RemoteAddress = IPAddress.Parse(await GetIpAddressFromHostName());
+                RemoteAddress = IPAddress.Parse(GetIpAddressFromHostName().Result);
             }
 
             base.ActivateOptions();
