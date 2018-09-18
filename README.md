@@ -521,4 +521,4 @@ This project is licensed under the [MIT](2) license
 
 [1]: https://github.com/Graylog2/graylog2-docs/wiki/GELF
 [2]: https://opensource.org/licenses/MIT
-[3]: http://logging.apache.org/log4net/release/sdk/log4net.Layout.PatternLayout.html
+[3]: https://logging.apache.org/log4net/log4net-2.0.8/release/sdk/html/T_log4net_Layout_PatternLayout.htm
