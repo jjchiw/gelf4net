@@ -23,6 +23,7 @@ namespace Gelf4Net.Appender
         public string Username { get; set; }
         public string Password { get; set; }
         public int RetryAfterMilliseconds { get; set; } = 5000;
+        public bool UseTls { get; set; } = true;
         public Encoding Encoding { get; set; }
         protected IConnection Connection { get; set; }
         protected IModel Channel { get; set; }
@@ -50,7 +51,13 @@ namespace Gelf4Net.Appender
                 VirtualHost = VirtualHost,
                 UserName = Username,
                 Password = Password,
-                AutomaticRecoveryEnabled = true
+                AutomaticRecoveryEnabled = true,
+                Ssl = new SslOption
+                {
+                    Enabled = UseTls,
+                    ServerName = RemoteAddress,
+                    Version = SslProtocols.None
+                };
             };
             Connection = ConnectionFactory.CreateConnection();
             Channel = Connection.CreateModel();
