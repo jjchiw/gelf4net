@@ -230,9 +230,9 @@ namespace Gelf4Net.Layout
         private void AddAdditionalFields(LoggingEvent loggingEvent, GelfMessage message)
         {
             var additionalFields = ParseField(AdditionalFields) ?? new Dictionary<string, object>();
-            foreach (DictionaryEntry item in loggingEvent.GetProperties())
+            foreach (KeyValuePair<string,object?> item in loggingEvent.GetProperties())
             {
-                var key = item.Key as string;
+                var key = item.Key;
                 if (key != null && !key.StartsWith("log4net:") /*exclude log4net built-in properties */ )
                 {
                     additionalFields.Add(key, FormatAdditionalField(item.Value));
